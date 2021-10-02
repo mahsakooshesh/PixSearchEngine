@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="search engine for pictures">
+    <title>Image Search Engine</title>
+    <script src="./search.js" defer></script>
+    <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+    <header>
+        <h1>Pixabay's image search engine</h1>
+
+    </header>
+    <main>
+        <section id="input">
+            <form method="get" action="https://pixabay.com/api/">
+                <label>Search: <input type="search" id="searchinput" name="text"
+                        placeholder="&#128269 write here..."></label>
+                <label for="color">Choose a color:
+
+                    <select id="color" name="color">
+                        <option value="">Any color</option>
+                        <option value="red">Red</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="pink">Pink</option>
+
+                    </select>
+                </label>
+                <button type="submit" id="submit"> <img id="sicon" src="./image/search_icon.png" alt="" height=10px>
+                    Pixabay</button>
+            </form>
+
+        </section>
+        <section id="result">
+
+        </section>
+        <section id="buttons">
+            <button id="back" style="display: none;" disabled="disabled">previous page</button>
+            <button id="next" style="display: none" disabled="disabled">next page</button>
+
+        </section>
+
+    </main>
+    <footer><a href="https://pixabay.com/">&copy;<img src="./image/logo.webp" id="pixlogo" alt="Pixabay logo"
+                height="12px"></a></footer>
+
+</body>
+
+</html>
