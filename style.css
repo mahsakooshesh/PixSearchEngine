@@ -102,20 +102,28 @@ a, #pixlogo {
 
 @media (max-width: 600px){
     #result {
+        display: flex;
         flex-direction: column;
         padding: 0;
     }
-    
+    label {
+        display:block
+    }
+    body {
+        margin: 0;
+    }
+     
+
 
 @media (max-width: 800px) {
-    
-    img {
-        max-width: 50%;
-    }
-      
-    h1 {
-        font-size: 40px;
-    }
- 
-}
+    #input, #color, label, #submit, #searchinput, #next, #back {
+        size: 30 px;
+        font-size: 1.5rem;
+        }
+
+    a, #pixlogo {
+        font-size: 2rem;
+        height: 20px;
+    }       
+    } 
 }
