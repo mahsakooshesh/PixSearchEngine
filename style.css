@@ -119,6 +119,7 @@ a, #pixlogo {
     #input, #color, label, #submit, #searchinput, #next, #back {
         size: 30 px;
         font-size: 1.5rem;
+        color: black;
         }
 
     a, #pixlogo {
