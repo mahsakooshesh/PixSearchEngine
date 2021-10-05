@@ -1,9 +1,11 @@
 const form = document.querySelector("form");
 let search = "";
 let color = "";
+let numberOfPage =0;
 
 const api_key = "23520112-b013bf2d41dfff6b7c3007bcf";
-const hits = 200;
+let pageNumber = 1;
+let url = "";
 
 let counter = 0;
 let letfOverImage = 0;
@@ -12,17 +14,68 @@ let arrayImages = [];
 let itemImage = {srcIm: "", tagIm : "", userIm: "" };
 let amountImageInLastPage = 0;
 
+//variables for new pictures elements
+let contain;
+let img;
+let tag;
+let user;
+
 let buttonNext = document.getElementById("next");
 let buttonBack = document.getElementById("back");
 let container = document.getElementById("result");
 let buttons = document.getElementById("buttons");
 
+function CreatePicturesElements (){
+
+    contain = document.createElement("section");
+    contain.id = "contain";
+    img = document.createElement('img');
+    img.id = "image";
+    tag = document.createElement('figcaption');
+    tag.id = "tags";
+    user = document.createElement('figcaption');
+    user.id = "users";                   
+    
+}
+
+function AppendChildFunction() {
+    container.appendChild(contain);
+    contain.appendChild(img);
+    contain.appendChild(tag);
+    contain.appendChild(user);
+}
+
+async function SearchImage(urlParameter){
+    const response = await fetch(urlParameter);
+    const json = await response.json();
+    numberOfPage = Math.ceil(json.totalHits/10);
+    json.hits.forEach(image => {
+
+        let srcImage = image.previewURL;
+        let tagImage = image.tags;
+        let userImage = image.user;
+        itemImage = {srcIm: srcImage, tagIm : tagImage, userIm: userImage };
+        arrayImages.push(itemImage);
+        });
+    
+    imageAmount = arrayImages.length;
+    for (let i=0;i<imageAmount;i++)
+        {                      
+          CreatePicturesElements();
+          tag.textContent = arrayImages[i].tagIm;
+          user.textContent = arrayImages[i].userIm;
+          img.src = arrayImages[i].srcIm;
+          AppendChildFunction();          
+          counter+=1;
+        }
+}
 
 form.onsubmit = event => {
     event.preventDefault();
 
     //reset the search field when new search begins
     search = "";
+    pageNumber = 1;
     color = "";
     counter = 0;
     letfOverImage = 0;
@@ -39,322 +92,88 @@ form.onsubmit = event => {
         key: api_key,
         q: search,
         colors: color,
-        per_page: hits
+        per_page: 10,
+        page : pageNumber
         
     })
-    const url = form.action +'?'+ params.toString();
-
-    async function SearchImage() {
-        const response = await fetch(url);
-        const json = await response.json();
-            
-      //iterate every image found and push it to imageAmount array
-        json.hits.forEach(image => {
-
-            let srcImage = image.previewURL;
-            let tagImage = image.tags;
-            let userImage = image.user;
-            itemImage = {srcIm: srcImage, tagIm : tagImage, userIm: userImage };
-            arrayImages.push(itemImage);
-         });
-
-
-         imageAmount = arrayImages.length;
-
- 
-         //check if we are going to enter the first page
-        if (counter === 0)
-        {
-            if(imageAmount>=10){
-                container.textContent="";
-                for (let i=0;i<10;i++)
-                {
-                    let contain = document.createElement("section");
-                    contain.id = "contain";
-                    let img = document.createElement('img');
-                    img.id = "image";
-                    let tag = document.createElement('figcaption');
-                    tag.id = "tags";
-                    let user = document.createElement('figcaption');
-                    user.id = "users";
-                    
-                                    
-                    tag.textContent = arrayImages[i].tagIm;
-                    user.textContent = arrayImages[i].userIm;
-                    img.src = arrayImages[i].srcIm;
-                    container.appendChild(contain);
-                    contain.appendChild(img);
-                    contain.appendChild(tag);
-                    contain.appendChild(user);
-                    
-                    counter+=1;
-                }
-            }
-            else {
-                container.textContent="";
-                for (let i=0;i<imageAmount+1;i++)
-                {
-                    let contain = document.createElement("section");
-                    contain.id = "contain";
-                    let img = document.createElement('img');
-                    img.id = "image";
-                    let tag = document.createElement('figcaption');
-                    tag.id = "tags";
-                    let user = document.createElement('figcaption');
-                    user.id = "users";
-                    
-                                    
-                    tag.textContent = arrayImages[i].tagIm;
-                    user.textContent = arrayImages[i].userIm;
-                    img.src = arrayImages[i].srcIm;
-                    container.appendChild(contain);
-                    contain.appendChild(img);
-                    contain.appendChild(tag);
-                    contain.appendChild(user);
-                    
-                    counter+=1;
-                }
-            }
-
-            
-            
-            letfOverImage = imageAmount-counter;
-
-            buttonNext.style.display= "";
-            buttonBack.style.display= "";
-            if (letfOverImage === 0) {
-                buttonBack.disabled = true;
-                buttonNext.disabled = true;
-            }
-            else {
-                buttonNext.disabled = false;
-            }
-            
-
-        }                  
-
-        
-
-    }
+    url = form.action +'?'+ params.toString();
 
     if(search != ""){
-        SearchImage(); 
+        SearchImage(url); 
+        buttonBack.style.display = "";
+        buttonNext.disabled = false;
+        buttonNext.style.display = "";
     }
     else {
         alert("search box cannot be empty");
         buttonBack.style.display = "none";
         buttonNext.style.display = "none";
-
-    }
-
-   
+    }   
 }
 
 buttonNext.onclick = event => {
     event.preventDefault();
-    container.textContent="";
-    letfOverImage = imageAmount-counter;
-    let limit = counter +10;
+    container.textContent= "";
+    arrayImages = [];
 
-    //check if we are not gonna enter the last page
-    if(letfOverImage>10)
-    {
-        for(let i= counter; i<limit; i++) {
-            try {
-                let contain = document.createElement("section");
-                contain.id = "contain";
-                let img = document.createElement('img');
-                img.id = "image";
-                let tag = document.createElement('figcaption');
-                tag.id = "tags";
-                let user = document.createElement('figcaption');
-                user.id = "users";
-                
-                                
-                tag.textContent = arrayImages[i].tagIm;
-                user.textContent = arrayImages[i].userIm;
-                img.src = arrayImages[i].srcIm;
-                container.appendChild(contain);
-                contain.appendChild(img);
-                contain.appendChild(tag);
-                contain.appendChild(user);
-                counter+=1;
-            }
-            catch(e) {
-                if(e) {
-                    console.log("got error: " + e + " stop on counter: " + counter);
-                }
-            }
-            
-        }
-        buttonBack.disabled = false;
-
-    }
-    //check if we are entering the last page
-    else
-    {
+    pageNumber+=1;
+    const params = new URLSearchParams({
+        key: api_key,
+        q: search,
+        colors: color,
+        per_page: 10,
+        page : pageNumber
         
-        for(let i= counter; i<imageAmount; i++) {
-            try {
-            amountImageInLastPage = letfOverImage;
-                let contain = document.createElement("section");
-                contain.id = "contain";
-                let img = document.createElement('img');
-                img.id = "image";
-                let tag = document.createElement('figcaption');
-                tag.id = "tags";
-                let user = document.createElement('figcaption');
-                user.id = "users";
-                
-                                
-                tag.textContent = arrayImages[i].tagIm;
-                user.textContent = arrayImages[i].userIm;
-                img.src = arrayImages[i].srcIm;
-                container.appendChild(contain);
-                contain.appendChild(img);
-                contain.appendChild(tag);
-                contain.appendChild(user);
-                counter+=1;
+    })
+    url = form.action +'?'+ params.toString();
+    SearchImage(url);
+    if (pageNumber === numberOfPage){
 
-            }
-            catch(e) {
-                if(e) {
-                    console.log("got error: " + e + " stop on counter: " + counter);
-                }
-            }
-            
-        }
+        buttonBack.disabled = false;
+        buttonBack.style.display = "";
         buttonNext.disabled = true;
-    }
-}
+        buttonNext.style.display = "";
 
+    }
+    else {
+        buttonBack.disabled = false;
+        buttonBack.style.display = "";
+        buttonNext.disabled = false;
+        buttonNext.style.display = "";
+    }
+
+
+}
 buttonBack.onclick = event => {
     event.preventDefault();
+    container.textContent= "";
+    arrayImages = [];
 
-    container.textContent="";
-    letfOverImage = imageAmount-counter;
-    let begin =counter;
-   
-    //go to previous page from the last page
-    if(letfOverImage===0)
-    {
-        begin = imageAmount-amountImageInLastPage-10;
-        let limit = begin +10;
-        counter = begin;
+    pageNumber-=1;
+    const params = new URLSearchParams({
+        key: api_key,
+        q: search,
+        colors: color,
+        per_page: 10,
+        page : pageNumber
+        
+    })
+    url = form.action +'?'+ params.toString();
+    SearchImage(url);
+    if (pageNumber === 1){
 
-        for(let i= begin; i<limit; i++) {
-            try {
-            
-                let contain = document.createElement("section");
-                contain.id = "contain";
-                let img = document.createElement('img');
-                img.id = "image";
-                let tag = document.createElement('figcaption');
-                tag.id = "tags";
-                let user = document.createElement('figcaption');
-                user.id = "users";
-                
-                                
-                tag.textContent = arrayImages[i].tagIm;
-                user.textContent = arrayImages[i].userIm;
-                img.src = arrayImages[i].srcIm;
-                container.appendChild(contain);
-                contain.appendChild(img);
-                contain.appendChild(tag);
-                contain.appendChild(user);
-                counter+=1;
-
-            }
-            catch(e) {
-                if(e) {
-                    console.log("got error: " + e + " stop on counter: " + counter);
-                }
-            }
-            
-        }
-        buttonBack.disabled = false;
+        buttonBack.disabled = true;
+        buttonBack.style.display = "";
         buttonNext.disabled = false;
+        buttonNext.style.display = "";
 
     }
-    //check if we are entering the first page
-    else if(counter-10===10) {
-        counter = 0;
-        limit = counter +10;
-
-        for (let i=0;i<limit;i++){
-            try {
-                let contain = document.createElement("section");
-                contain.id = "contain";
-                let img = document.createElement('img');
-                img.id = "image";
-                let tag = document.createElement('figcaption');
-                tag.id = "tags";
-                let user = document.createElement('figcaption');
-                user.id = "users";
-                
-                                
-                tag.textContent = arrayImages[i].tagIm;
-                user.textContent = arrayImages[i].userIm;
-                img.src = arrayImages[i].srcIm;
-                container.appendChild(contain);
-                contain.appendChild(img);
-                contain.appendChild(tag);
-                contain.appendChild(user);
-                counter+=1;
-
-            } 
-            catch(e) {
-                if(e) {
-                    console.log("got error: " + e + " stop on counter: " + counter);
-                }
-            }
-            buttonNext.disabled = false;
-            buttonBack.disabled = true;
-        }
-            
-
-
-    }
-
-    //check if we are not entering the first page
-    else  {
-
-        begin = counter-20;
-        limit = begin+10;
-        counter = begin;
-
-
-        for(let i= begin; i<limit; i++) {
-            try {
-                let contain = document.createElement("section");
-                contain.id = "contain";
-                let img = document.createElement('img');
-                img.id = "image";
-                let tag = document.createElement('figcaption');
-                tag.id = "tags";
-                let user = document.createElement('figcaption');
-                user.id = "users";
-                
-                                
-                tag.textContent = arrayImages[i].tagIm;
-                user.textContent = arrayImages[i].userIm;
-                img.src = arrayImages[i].srcIm;
-                container.appendChild(contain);
-                contain.appendChild(img);
-                contain.appendChild(tag);
-                contain.appendChild(user);
-                counter+=1;
-
-            }
-            catch(e) {
-                if(e) {
-                    console.log("got error: " + e + " stop on counter: " + counter);
-                }
-            }
-            
-        }
-        buttonNext.disabled = false;
-        buttonBack.disabled = false;
+    else {
+    buttonBack.disabled = false;
+    buttonBack.style.display = "";
+    buttonNext.disabled = false;
+    buttonNext.style.display = "";
     }
     
+
 }
